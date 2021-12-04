@@ -1,15 +1,15 @@
 import psycopg2 as psql
 from abc import ABCMeta,abstractmethod
-from .config_reader import ConfigReader
-from exceptions import PsqlDataSourceException
-
+from config_reader import ConfigReader
+from exceptions import *
+from data_model import *
 
 class IDataSource:
     __metaclass__ = ABCMeta
     
     def __init__(self,logger):
-        self.__config = ConfigReader()
-        self.__logger =  logger
+        self._config = ConfigReader()
+        self._logger =  logger
     
     
     @abstractmethod    
@@ -27,7 +27,7 @@ class IDataSource:
         raise NotImplementedError
           
     @abstractmethod
-    def _load_to_database(self, obj):
+    def _exec_non_reader(self, sql_query,arg_tuple=None):
         '''
         Load data as table object into data source
         '''
@@ -36,13 +36,10 @@ class IDataSource:
 class PsqlDataScource(IDataSource):
     _ds_engine = None
     _ds_conn = None
-    def __init__(self):
-        super().__init__()
+    def __init__(self,logger):
+        super().__init__(logger)
         
-        __host, __dbname, __user, __password = self.__config.get_DB_info()
-        self.__conn_string = "postgresql://{}:{}@{}/{}".format(__user, __password, __host, __dbname)
-        
-        self.__crs, self.__geom_col_name = self.__config.get_gdp_query_conf()
+        __host, __dbname, __user, __password = self._config.get_DB_info()
         
         kwargs = {'hname':__host, 'dbname': __dbname, 'uname': __user, 'pas': __password}
         self._conn_init(**kwargs)
@@ -70,19 +67,46 @@ class PsqlDataScource(IDataSource):
         finally:
             cursor.close()
   
-    def _load_to_database(self, obj):
-        s = self.__create_session()
+    def _exec_non_reader(self,sql_query, args_tuple=None):
+        cursor = self._ds_conn.cursor()
         try:
-            s.add(obj)
-            s.commit()
-        except :
-            s.rollback()
-            raise PsqlDataSourceException("Something went wrong in loading data as object into data base")
+            cursor.execute(sql_query, args_tuple)
+            self._ds_conn.commit()
+        except:
+            self._ds_conn.rollback()
+            raise PsqlDataSourceException("Something went wrong in executing query on data source.")
         finally:
-            s.close()
+            cursor.close()
     
 
-class SourceDS(PsqlDataScource):
-    def __init__(self):
-        super().__init__()
-        
+class DataSource(PsqlDataScource):
+    def __init__(self,logger):
+        super().__init__(logger)
+    
+    def insert_start_session(self,new_session: StartSessionDM):
+        """
+        Insert a new record into StartSession table.
+        NOTE: This functionality can be implemented in different ways, but here, I sicked to the simplest one.
+
+        param:  new_session: An object which holds all the fields for the new session
+        type: AN object of type StartSessionDM
+
+        result: The new generated SessionId
+        type:   str object
+        """
+
+        if not isinstance(new_session,StartSessionDM):
+            raise TMSValueError(f"Invalid object for 'new_session' parameter. It has to be a 'StartSessionDM' object instead of '{type(new_session)}'")
+
+        query = "INSERT INTO public.sessions( \
+	            session_id, user_id, machine_id, start_at, application_id) \
+	            VALUES ('{session_id}', '{user_id}', '{machine_id}', '{start_at}', {app_id});".format(
+                    session_id = new_session.session_id,
+                    user_id = new_session.user_id,
+                    machine_id = new_session.machine_id,
+                    start_at = new_session.start_at,
+                    app_id = new_session.app_id 
+                )
+
+        self._exec_non_reader(query)
+

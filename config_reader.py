@@ -26,4 +26,9 @@ class ConfigReader():
                         os.environ[self._config['DB']['env_db_passwrd']]
     
     
+    ### TMS_API
+    def get_api_debug_mode(self):
+        return bool(int(self._config['TMS_API']['debug_mode']))
+
+
     ### General Part

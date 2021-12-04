@@ -4,6 +4,12 @@ class TMSException(Exception):
     """
     pass
 
+class TMSValueError(TMSException):
+    """
+    All Value errors
+    """
+    pass
+
 class PsqlDataSourceException(TMSException):
     """
     Exceptions related to Postgres DataBase
