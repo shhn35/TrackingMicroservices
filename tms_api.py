@@ -3,9 +3,9 @@ from controllers import TMsController
 from log import Logger
 from config_reader import ConfigReader
 from exceptions import *
+from http import HTTPStatus
 
 class TMS_API(object):
-    hadi = dict()
     tms_api = Flask(__name__)
     def __init__(self) :
         self.tms_api.__cfg = ConfigReader()
@@ -32,23 +32,65 @@ class TMS_API(object):
     
     @tms_api.route('/StartSession',methods=['POST'])
     def start_session():
+        result = dict()
         try:
             req_body = request.json
             
-            new_session_id = current_app.__tms_controller.start_session(req_body=req_body)
+            result = current_app.__tms_controller.start_session(req_body=req_body)
             
-            return jsonify(new_session_id)
+            return jsonify(result)
 
         except TMSException:
             current_app.__logger.exception("Error in starting new session!")
+            
             ### Other actions regarding the exception, given it is raised by our code
+            ###
+            ###
 
+            result["status"] = HTTPStatus.INTERNAL_SERVER_ERROR
+            result["message"] = "Something went wrong withing your request."
+            return jsonify(result)
+        except Exception:            
+            current_app.__logger.exception("Error in starting new session!")
+            
+            ### Other actions regarding the exception, given it is raised by our code
+            ###
+            ###
 
-            return "<h1>Something wrong happeng withing your request.</h1>"
-        except Exception:
-            current_app.__logger.exception("Unexpected Error in starting new session!")
-            return "<h1>Something wrong happeng withing your request.</h1>"
+            result["status"] = HTTPStatus.INTERNAL_SERVER_ERROR
+            result["message"] = "Something went wrong withing your request."
+            return jsonify(result)
 
+    @tms_api.route('/EndSession',methods=['POST'])
+    def end_session():
+        result = dict()
+        try:
+            req_body = request.json
+            
+            result = current_app.__tms_controller.close_session(req_body=req_body)
+            
+            return jsonify(result)
+
+        except TMSException:
+            current_app.__logger.exception("Error in starting new session!")
+            
+            ### Other actions regarding the exception, given it is raised by our code
+            ###
+            ###
+
+            result["status"] = HTTPStatus.INTERNAL_SERVER_ERROR
+            result["message"] = "Something went wrong withing your request."
+            return jsonify(result)
+        except Exception:            
+            current_app.__logger.exception("Error in starting new session!")
+
+            ### Other actions regarding the exception, given it is raised by our code
+            ###
+            ###
+
+            result["status"] = HTTPStatus.INTERNAL_SERVER_ERROR
+            result["message"] = "Something went wrong withing your request."
+            return jsonify(result)
 
 
 

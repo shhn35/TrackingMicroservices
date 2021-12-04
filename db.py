@@ -83,7 +83,7 @@ class DataSource(PsqlDataScource):
     def __init__(self,logger):
         super().__init__(logger)
     
-    def insert_start_session(self,new_session: StartSessionDM):
+    def create_new_session(self,new_session: SessionDM):
         """
         Insert a new record into StartSession table.
         NOTE: This functionality can be implemented in different ways, but here, I sicked to the simplest one.
@@ -95,7 +95,7 @@ class DataSource(PsqlDataScource):
         type:   str object
         """
 
-        if not isinstance(new_session,StartSessionDM):
+        if not isinstance(new_session,SessionDM):
             raise TMSValueError(f"Invalid object for 'new_session' parameter. It has to be a 'StartSessionDM' object instead of '{type(new_session)}'")
 
         query = "INSERT INTO public.sessions( \
@@ -106,6 +106,32 @@ class DataSource(PsqlDataScource):
                     machine_id = new_session.machine_id,
                     start_at = new_session.start_at,
                     app_id = new_session.app_id 
+                )
+
+        self._exec_non_reader(query)
+
+    def close_session_by_id(self,current_session: SessionDM):
+        """
+        Close the session by updating the EndAt field.
+        NOTE: This functionality can be implemented in different ways, but here, I sicked to the simplest one.
+
+        param:  current_session: An object which holds all the fields for the new session
+        type: AN object of type StartSessionDM
+        """
+
+        if not isinstance(current_session,SessionDM):
+            raise TMSValueError(f"Invalid object for 'new_session' parameter. It has to be a 'StartSessionDM' object instead of '{type(new_session)}'")
+
+        ### Some validations that are important to implement:
+
+        ### 1. If the current session is already closed, the update 'end_at' should not execute.
+        ### 2. end_at has to be greater than current_session.start_at, unless the update should get aborted.
+
+        query = "UPDATE public.sessions \
+	            SET end_at='{end_at}' \
+                WHERE session_id= '{session_id}'".format(
+                    session_id = current_session.session_id,
+                    end_at = current_session.end_at
                 )
 
         self._exec_non_reader(query)
