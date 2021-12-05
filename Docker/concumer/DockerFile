@@ -1,0 +1,6 @@
+FROM python:3.8.5
+WORKDIR /home/TMS/consumer/
+COPY . /home/TMS/consumer/
+RUN find /home/TMS
+RUN pip install -r /home/TMS/consumer/requirments.txt
+ENTRYPOINT ["python","/home/TMS/consumer/event_consumers.py"]

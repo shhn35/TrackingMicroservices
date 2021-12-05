@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: ./Docker/api/DockerFile
+    image: TMsAPI/img
+    container_name: TMsAPI
+    ports:
+      - "5000:5000"
+    volumes:
+      - /tmp/tms/api/logs/:/home/TMS/api/logs
+    network_mode:
+      "host"
+    networks:
+      - TMS
+  consumer:
+    build: 
+      context: .
+      dockerfile: ./Docker/consumer/DockerFile
+    image: TMsConsumer/img
+    container_name: TMsConsumer
+    volumes:
+      - /tmp/tms/api/logs/:/home/TMS/consumer/logs
+    network_mode:
+      "host"
+    networks:
+      - TMS
+networks:
+  TMS:
+    driver: bridge

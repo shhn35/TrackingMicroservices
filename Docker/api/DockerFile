@@ -1,0 +1,6 @@
+FROM python:3.8.5
+WORKDIR /home/TMS/api/
+COPY . /home/TMS/api/
+RUN find /home/TMS
+RUN pip install -r /home/TMS/api/requirments.txt
+ENTRYPOINT ["python","/home/TMS/api/tms_api.py"]
