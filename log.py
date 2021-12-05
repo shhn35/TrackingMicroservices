@@ -23,7 +23,7 @@ class Logger(object):
             _log_level = logging.CRITICAL
             
         
-        _log_filename = config.get_etl_logfile_path()
+        _log_filename = config.get_logfile_path()
         
         Path(os.path.join(_log_filename[0:_log_filename.rfind('\\')])).mkdir(parents=True,exist_ok=True)
         

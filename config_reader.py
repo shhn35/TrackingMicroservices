@@ -13,7 +13,7 @@ class ConfigReader():
     def get_logger_level(self):
         return self._config['LOGS']['logger_level']
     
-    def get_etl_logfile_path (self):
+    def get_logfile_path (self):
         return self._config['LOGS']['log_file']
     
         
@@ -32,3 +32,9 @@ class ConfigReader():
 
 
     ### General Part
+    def get_error_msg (self):
+        return self._config['GENERAL']['error_msg'] 
+
+    ### VALIDATION Part
+    def get_max_event_count(self):
+        return int(self._config['VALIDATIONS']['max_event_count'])

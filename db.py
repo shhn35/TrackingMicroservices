@@ -2,13 +2,13 @@ import psycopg2 as psql
 from abc import ABCMeta,abstractmethod
 from config_reader import ConfigReader
 from exceptions import *
-from data_model import *
+import view_models as vm
 
 class IDataSource:
     __metaclass__ = ABCMeta
     
-    def __init__(self,logger):
-        self._config = ConfigReader()
+    def __init__(self,cfg,logger):
+        self._config = cfg
         self._logger =  logger
     
     
@@ -36,8 +36,8 @@ class IDataSource:
 class PsqlDataScource(IDataSource):
     _ds_engine = None
     _ds_conn = None
-    def __init__(self,logger):
-        super().__init__(logger)
+    def __init__(self,cfg,logger):
+        super().__init__(cfg,logger)
         
         __host, __dbname, __user, __password = self._config.get_DB_info()
         
@@ -80,23 +80,23 @@ class PsqlDataScource(IDataSource):
     
 
 class DataSource(PsqlDataScource):
-    def __init__(self,logger):
-        super().__init__(logger)
+    def __init__(self,cfg,logger):
+        super().__init__(cfg,logger)
     
-    def create_new_session(self,new_session: SessionDM):
+    def create_new_session(self,new_session: vm.SessionVM):
         """
         Insert a new record into StartSession table.
         NOTE: This functionality can be implemented in different ways, but here, I sicked to the simplest one.
 
         param:  new_session: An object which holds all the fields for the new session
-        type: AN object of type StartSessionDM
+        type: AN object of type StartSessionVM
 
         result: The new generated SessionId
         type:   str object
         """
 
-        if not isinstance(new_session,SessionDM):
-            raise TMSValueError(f"Invalid object for 'new_session' parameter. It has to be a 'StartSessionDM' object instead of '{type(new_session)}'")
+        if not isinstance(new_session,vm.SessionVM):
+            raise TMSValueError(f"Invalid object for 'new_session' parameter. It has to be a 'StartSessionVM' object instead of '{type(new_session)}'")
 
         query = "INSERT INTO public.sessions( \
 	            session_id, user_id, machine_id, start_at, application_id) \
@@ -110,22 +110,17 @@ class DataSource(PsqlDataScource):
 
         self._exec_non_reader(query)
 
-    def close_session_by_id(self,current_session: SessionDM):
+    def close_session_by_id(self,current_session: vm.SessionVM):
         """
         Close the session by updating the EndAt field.
         NOTE: This functionality can be implemented in different ways, but here, I sicked to the simplest one.
 
         param:  current_session: An object which holds all the fields for the new session
-        type: AN object of type StartSessionDM
+        type: AN object of type StartSessionVM
         """
 
-        if not isinstance(current_session,SessionDM):
-            raise TMSValueError(f"Invalid object for 'new_session' parameter. It has to be a 'StartSessionDM' object instead of '{type(new_session)}'")
-
-        ### Some validations that are important to implement:
-
-        ### 1. If the current session is already closed, the update 'end_at' should not execute.
-        ### 2. end_at has to be greater than current_session.start_at, unless the update should get aborted.
+        if not isinstance(current_session,vm.SessionVM):
+            raise TMSValueError(f"Invalid object for 'current_session' parameter. It has to be a 'StartSessionVM' object instead of '{type(current_session)}'")        
 
         query = "UPDATE public.sessions \
 	            SET end_at='{end_at}' \
@@ -135,4 +130,18 @@ class DataSource(PsqlDataScource):
                 )
 
         self._exec_non_reader(query)
+
+    def get_session_by_id(self,session_id):
+        """
+        Retrives the sesssion based on the session_id
+        """
+
+        if not isinstance(session_id,str):
+            raise TMSValueError(f"Invalid object for 'session_id' parameter. It has to be a 'str' object instead of '{type(session_id)}'")        
+
+        query = "select * from sessions where session_id = '{id}'".format(id=session_id)
+
+        return self._exec_select(query)
+        
+
 
