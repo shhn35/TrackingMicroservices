@@ -3,6 +3,7 @@ This implementation, uses Postgres database engine.
 
 ## ER Diagram
 
+![TMS ERD (1)](https://user-images.githubusercontent.com/27760160/144751680-ba2ae914-e323-43f8-a515-15f8ad3b155a.png)
 
 ## Tables
 There are seven tables as follow
