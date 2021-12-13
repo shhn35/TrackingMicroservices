@@ -36,6 +36,13 @@ class TMsController(TMsBasics):
                                        start_at=req_body["startAt"],
                                        app_id=req_body["appId"])
 
+
+        validation_res = self.__validator.validate_start_session(new_session)
+        if not validation_res.status:
+            result["status"] = HTTPStatus.BAD_REQUEST
+            result["message"] = validation_res.message
+            return result
+
         ### Insert new session into DB 
         self.__data_source.create_new_session(new_session)
 

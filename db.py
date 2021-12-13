@@ -11,7 +11,6 @@ class IDataSource:
         self._config = cfg
         self._logger =  logger
     
-    
     @abstractmethod    
     def _conn_init(self,**kwargs):
         '''
@@ -31,7 +30,7 @@ class IDataSource:
         '''
         Load data as table object into data source
         '''
-    
+        raise NotImplementedError
     
 class PsqlDataScource(IDataSource):
     _ds_engine = None
@@ -77,7 +76,6 @@ class PsqlDataScource(IDataSource):
             raise PsqlDataSourceException("Something went wrong in executing query on data source.")
         finally:
             cursor.close()
-    
 
 class DataSource(PsqlDataScource):
     def __init__(self,cfg,logger):
@@ -143,5 +141,27 @@ class DataSource(PsqlDataScource):
 
         return self._exec_select(query)
         
+    def get_machine_by_id(self,machine_id):
+        """
+        Retrives the machine based on the machine_id
+        """
 
+        if not isinstance(machine_id,str):
+            raise TMSValueError(f"Invalid object for 'machine_id' parameter. It has to be a 'str' object instead of '{type(machine_id)}'")        
+
+        query = "select * from machines where machine_id = '{id}'".format(id=machine_id)
+
+        return self._exec_select(query)
+
+    def get_user_by_id(self,user_id):
+        """
+        Retrives the machine based on the machine_id
+        """
+
+        if not isinstance(user_id,str):
+            raise TMSValueError(f"Invalid object for 'user_id' parameter. It has to be a 'str' object instead of '{type(user_id)}'")        
+
+        query = "select * from users where user_id = '{id}'".format(id=user_id)
+
+        return self._exec_select(query)
 

@@ -26,7 +26,6 @@ class SessionVM(TMsBasics):
         self.session_id = session_id
         self.end_at = end_at
 
-
     ### SessionId
     @property
     def session_id(self):
@@ -36,7 +35,6 @@ class SessionVM(TMsBasics):
         ### implement validation here ...
         self.__session_id = value
 
-
     ### UserId
     @property
     def user_id(self):
@@ -45,7 +43,6 @@ class SessionVM(TMsBasics):
     def user_id(self,value):
         ### implement validation here ...
         self.__user_id = value
-
     
     ### MachineID
     @property
@@ -55,7 +52,6 @@ class SessionVM(TMsBasics):
     def machine_id(self,value):
         ### implement validation here ...
         self.__machine_id = value
-
     
     ### StartAt
     @property
@@ -68,7 +64,6 @@ class SessionVM(TMsBasics):
             self.__start_at = dt.datetime.fromisoformat(value)
         except:
             raise TMSValueError("The value for the 'start_at' attribute is not a valid datetime!")
-
     
     ### EndAt
     @property
@@ -82,7 +77,6 @@ class SessionVM(TMsBasics):
         except:
             raise TMSValueError("The value for the 'end_at' attribute is not a valid datetime!")
 
-    
     ### AppID
     @property
     def app_id(self):
@@ -91,10 +85,8 @@ class SessionVM(TMsBasics):
     def app_id(self,value):
         ### implement validation here ...
         self.__app_id = int(value)
-
         
     ### Note: OrgId is ignored given it is handled in DB
-
 
 class EventDetailVM(object):
     """
@@ -181,7 +173,6 @@ class EventVM(object):
         if not isinstance(value,list):
             raise TMSValueError("The value for the 'events' attribute of an event object is not a valid list!")
         self.__events = value
-
 
 class ValidationResultVM(object):
     """

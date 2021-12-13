@@ -9,14 +9,20 @@ from config_reader import ConfigReader
 class TestEndSession(unittest.TestCase):
     _controller = TMsController()   
     def test_no_session(self):
-        req = {"sessionId": "no_session_test","endAt": str(dt.datetime.now())}
+        req = {
+            "sessionId": "no_session_test",
+            "endAt": str(dt.datetime.now())
+            }
 
         result = self._controller.close_session_controller(req)
 
         self.assertEqual(result['status'], HTTPStatus.BAD_REQUEST)
 
     def test_already_closed_session(self):
-        req = {"sessionId": "2540e370-e5bb-4d24-9b4e-0740d181ffae","endAt": str(dt.datetime.now())}
+        req = {
+            "sessionId": "2540e370-e5bb-4d24-9b4e-0740d181ffae",
+            "endAt": str(dt.datetime.now())
+            }
 
         result = self._controller.close_session_controller(req)
 
